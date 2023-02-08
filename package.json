@@ -21,7 +21,6 @@
     "acorn": "^6.0.0 || ^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^24.0.1",
     "acorn": "^8.8.2",
     "mocha": "^10.2.0",
     "rollup": "^3.14.0",
