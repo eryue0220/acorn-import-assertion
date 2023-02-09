@@ -4,7 +4,7 @@ import Errors from './errors.js';
 import { isWhitespace } from './util.js';
 
 const keyword = 'assert';
-const { scopflags, tokTypes: tt, TokenType } = acorn;
+const { tokTypes: tt, TokenType } = acorn;
 const FUNC_STATEMENT = 1;
 const FUNC_NULLABLE_ID = 4;
 
@@ -90,8 +90,8 @@ export default function importAssertionPlugin(Parser) {
       while (!this.eat(tt.braceR)) {
         if (first) {
           first = false;
-        } else {
-          this.eat(tt.comma);
+        } else if (this.eat(tt.comma) && this.eat(tt.braceR)) {
+          break;
         }
 
         const key = this.type === tt.string
