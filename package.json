@@ -1,0 +1,33 @@
+{
+  "name": "acorn-import-assertion-v2",
+  "version": "0.0.1",
+  "description": "Support for import assertion in acorn",
+  "main": "dist/index.js",
+  "module": "src/index.js",
+  "scripts": {
+    "build": "rollup -c rollup.config.mjs",
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eryue0220/acorn-import-assertion.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/eryue0220/acorn-import-assertion/issues"
+  },
+  "homepage": "https://github.com/eryue0220/acorn-import-assertion#readme",
+  "peerDependencies": {
+    "acorn": "^8.0.0"
+  },
+  "devDependencies": {
+    "acorn": "^8.8.2",
+    "mocha": "^10.2.0",
+    "rollup": "^3.14.0",
+    "test262": "git+https://github.com/tc39/test262.git#dac69563480b9f22709fd49d61a32b3a0513b6b1",
+    "test262-parser-runner": "^0.5.0"
+  },
+  "dependencies": {
+    "charcodes": "^0.2.0"
+  }
+}
