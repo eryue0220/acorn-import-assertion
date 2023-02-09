@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/eryue0220/acorn-import-assertion#readme",
   "peerDependencies": {
-    "acorn": "^6.0.0 || ^7.0.0 || ^8.0.0"
+    "acorn": "^8.0.0"
   },
   "devDependencies": {
     "acorn": "^8.8.2",

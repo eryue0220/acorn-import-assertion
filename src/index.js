@@ -4,7 +4,9 @@ import Errors from './errors.js';
 import { isWhitespace } from './util.js';
 
 const keyword = 'assert';
-const { tokTypes: tt, TokenType } = acorn;
+const { scopflags, tokTypes: tt, TokenType } = acorn;
+const FUNC_STATEMENT = 1;
+const FUNC_NULLABLE_ID = 4;
 
 tt._assert = new TokenType(keyword, { keyword });
 
@@ -113,6 +115,91 @@ export default function importAssertionPlugin(Parser) {
       }
       
       return attrs;
+    }
+
+    parseExport(node, exports) {
+      this.next();
+
+      // export * from '...'
+      if (this.eat(tt.star)) {
+        if (this.options.ecmaVersion >= 11) {
+          if (this.eatContextual('as')) {
+            node.exported = this.parseModuleExportName();
+            this.checkExport(exports, node.exported, this.lastTokStart);
+          } else {
+            node.exported = null;
+          }
+        }
+        this.expectContextual('from');
+        if (this.type !== tt.string) this.unexpected();
+
+        node.source = this.parseExprAtom();
+
+        if (this.type === tt._assert) {
+          node.attributes = this.parseImportAssertions(node);
+        }
+
+        this.semicolon();
+        return this.finishNode(node, 'ExportAllDeclaration');
+      } else if (this.eat(tt._default)) { // export default ...
+        this.checkExport(exports, 'default', this.lastTokStart);
+        let isAsync;
+
+        if (this.type === tt._function || (isAsync = this.isAsyncFunction())) {
+          const funcNode = this.startNode();
+          this.next();
+          if (isAsync) this.next();
+          node.declaration = this.parseFunction(
+            funcNode,
+            FUNC_STATEMENT | FUNC_NULLABLE_ID,
+            false,
+            isAsync,
+          );
+        } else if (this.type === tt._class) {
+          const classNode = this.startNode();
+          node.declaration = this.parseClass(classNode, 'nullableID');
+        } else {
+          node.declaration = this.parseMaybeAssign();
+          this.semicolon();
+        }
+      } else if (this.shouldParseExportStatement()) { // export const | var | let | function | class
+        node.declaration = this.parseStatement(null);
+
+        if (node.declaration.type === 'VariableDeclaration') {
+          this.checkVariableExport(exports, node.declaration.declarations);
+        } else {
+          this.checkExport(exports, node.declaration.id, node.declaration.id.start);
+        }
+
+        node.specifiers = [];
+        node.source = null;
+      } else { // export { x, y as } [from '...']
+        node.declaration = null;
+        node.specifiers = this.parseExportSpecifiers(exports);
+        if (this.eatContextual('from')) {
+          if (this.type !== tt.string) {
+            this.unexpected();
+          }
+          node.source = this.parseExprAtom();
+          if (this.type === tt._assert) {
+            node.attributes = this.parseImportAssertions(node);
+          }
+        } else {
+          for (const spec of node.specifiers) {
+            this.checkUnreserved(spec.local);
+            this.checkLocalExport(spec.local);
+
+            if (spec.local.type === 'Literal') {
+              this.raise(spec.local.start, Errors.ExportError());
+            }
+          }
+
+          node.source = null;
+        }
+        this.semicolon();
+      }
+
+      return this.finishNode(node, 'ExportNamedDeclaration');
     }
   };
 }
