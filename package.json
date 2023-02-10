@@ -6,6 +6,7 @@
   "module": "src/index.js",
   "scripts": {
     "build": "rollup -c rollup.config.mjs",
+    "ci": "npm run test:test262",
     "test:test262": "node run_test262.js"
   },
   "repository": {
