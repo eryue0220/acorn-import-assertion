@@ -1,4 +1,4 @@
-# acorn-import-assertion
+# acorn-import-assertion-v2
 ## Suport for import assertion in acorn
 
 ## Usage
